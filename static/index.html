@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ResumeAI - 智能简历分析与人岗匹配系统</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* 自定义滚动条 */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+
+<body
+  class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+
+  <!-- 顶部导航栏 -->
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div
+          class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-200">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+            </path>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span
+              class="text-xl font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">ResumeAI</span>
+          </div>
+          <p class="text-xs text-slate-500 font-medium hidden sm:block">AI 智能简历解析与人岗匹配诊断系统</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主体区域 -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- 顶部说明 Banner -->
+    <div
+      class="mb-8 p-6 rounded-2xl bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 text-white shadow-xl relative overflow-hidden">
+      <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none">
+      </div>
+      <div class="relative z-10 max-w-2xl">
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">智能评估简历，加速精准招聘</h1>
+        <p class="mt-2 text-indigo-200 text-sm sm:text-base leading-relaxed">
+          上传候选人 PDF 简历并粘贴岗位招聘要求（JD），AI 引擎将自动提取关键技能图谱、深度分析匹配度，并针对性生成个性化面试问题。
+        </p>
+      </div>
+    </div>
+
+    <!-- 核心操作区与结果展示双栏网格 -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+      <!-- 左侧：输入控制台 (5列) -->
+      <div class="lg:col-span-5 space-y-6">
+
+        <!-- 表单卡片 -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-6 space-y-6">
+          <div class="border-b border-slate-100 pb-4">
+            <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                </path>
+              </svg>
+              输入分析素材
+            </h2>
+            <p class="text-xs text-slate-500 mt-1">请提供候选人的 PDF 简历与目标岗位 JD</p>
+          </div>
+
+          <!-- 1. 简历上传组件 -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
+                <span>1. 候选人简历</span>
+                <span class="text-xs text-rose-500 font-normal">*PDF格式</span>
+              </label>
+              <span id="file-status-badge" class="text-xs text-slate-400">未选择文件</span>
+            </div>
+
+            <!-- 拖拽上传区域 -->
+            <div id="drop-zone"
+              class="relative border-2 border-dashed border-slate-300 hover:border-indigo-500 hover:bg-indigo-50/30 rounded-xl p-5 text-center cursor-pointer transition-all duration-200 group">
+              <input type="file" id="resume-file" accept="application/pdf,.pdf"
+                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+
+              <!-- 默认未上传状态 -->
+              <div id="upload-prompt" class="space-y-2 pointer-events-none">
+                <div
+                  class="w-12 h-12 mx-auto rounded-full bg-indigo-50 group-hover:bg-indigo-100 flex items-center justify-center text-indigo-600 transition-colors">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-slate-700">
+                    <span
+                      class="text-indigo-600 font-semibold underline decoration-indigo-300 underline-offset-2">点击上传</span>
+                    或将 PDF 文件拖拽至此
+                  </p>
+                  <p class="text-xs text-slate-400 mt-1">仅支持标准 PDF 文档 (建议小于 10MB)</p>
+                </div>
+              </div>
+
+              <!-- 已上传文件预览条 -->
+              <div id="file-preview"
+                class="hidden flex items-center justify-between p-2.5 rounded-lg bg-indigo-50/70 border border-indigo-100">
+                <div class="flex items-center space-x-3 overflow-hidden">
+                  <div class="p-2 rounded bg-indigo-600 text-white shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                      </path>
+                    </svg>
+                  </div>
+                  <div class="text-left truncate">
+                    <p id="file-name" class="text-xs font-semibold text-slate-800 truncate">resume.pdf</p>
+                    <p id="file-size" class="text-[11px] text-slate-500">0 KB</p>
+                  </div>
+                </div>
+                <button type="button" id="remove-file-btn"
+                  class="p-1.5 rounded-md hover:bg-indigo-200/60 text-slate-500 hover:text-slate-700 transition-colors z-20"
+                  title="移除文件">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. 职位描述 (JD) 输入框 -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label for="job-description" class="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
+                <span>2. 目标职位描述 (JD)</span>
+                <span class="text-xs text-rose-500 font-normal">*必填</span>
+              </label>
+              <button type="button" id="fill-sample-jd-btn"
+                class="text-xs text-indigo-600 hover:text-indigo-800 font-medium transition-colors inline-flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z">
+                  </path>
+                </svg>
+                填入测试JD
+              </button>
+            </div>
+
+            <div class="relative">
+              <textarea id="job-description" rows="7"
+                class="w-full text-sm p-3.5 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all resize-y placeholder:text-slate-400 bg-slate-50/50 focus:bg-white leading-relaxed"
+                placeholder="在此粘贴岗位的职位要求、技能栈、工作职责等...&#10;&#10;例如：&#10;- 3年以上前端/全栈开发经验&#10;- 精通 React/Vue 及 TypeScript，深入理解响应式原理&#10;- 熟悉 Node.js/Python 服务端开发及 RESTful 规范"></textarea>
+              <div class="absolute bottom-2.5 right-3 text-[11px] text-slate-400 font-mono pointer-events-none">
+                <span id="jd-char-count">0</span> 字
+              </div>
+            </div>
+          </div>
+
+          <!-- 错误消息提示栏 -->
+          <div id="error-alert"
+            class="hidden p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-start gap-2.5">
+            <svg class="w-5 h-5 text-rose-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div class="flex-1 text-xs sm:text-sm" id="error-message">请填写完整信息</div>
+          </div>
+
+          <!-- 3. 操作按钮 -->
+          <div>
+            <button type="button" id="analyze-btn"
+              class="w-full py-3.5 px-6 rounded-xl font-semibold text-white bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-md hover:shadow-lg shadow-indigo-200 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100">
+              <span id="btn-icon">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z">
+                  </path>
+                </svg>
+              </span>
+              <span id="btn-spinner" class="hidden">
+                <svg class="animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+              </span>
+              <span id="btn-text">开始深度分析</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+      <!-- 右侧：结果展示区 (7列) -->
+      <div class="lg:col-span-7 space-y-6">
+
+        <!-- 状态 1: 初始等待状态 (Empty State) -->
+        <div id="state-empty"
+          class="bg-white rounded-2xl border border-slate-200/90 p-12 text-center shadow-sm min-h-[460px] flex flex-col items-center justify-center">
+          <div
+            class="w-20 h-20 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mb-4 shadow-inner">
+            <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+              </path>
+            </svg>
+          </div>
+          <h3 class="text-base font-bold text-slate-700">暂无分析结果</h3>
+          <p class="text-sm text-slate-400 mt-1 max-w-sm">
+            请在左侧上传候选人 PDF 简历并粘贴岗位描述，点击“开始深度分析”后在此查看报告。
+          </p>
+        </div>
+
+        <!-- 状态 2: 分析中加载与实时流式输出 (Loading & Stream State) -->
+        <div id="state-loading" class="hidden bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm space-y-5">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center space-x-3 text-indigo-600">
+              <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+              </svg>
+              <span id="stream-status-title" class="font-semibold text-slate-800 text-sm sm:text-base">AI
+                正在深度流式解析简历...</span>
+            </div>
+            <span
+              class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-indigo-50 text-indigo-700 animate-pulse">
+              ● 实时流传输中
+            </span>
+          </div>
+
+          <!-- 三步流程指示条 -->
+          <div class="grid grid-cols-3 gap-2.5 text-xs">
+            <div id="step-skills-box"
+              class="p-2.5 rounded-lg bg-indigo-50 border border-indigo-200/80 flex items-center gap-2 transition-all">
+              <span id="step-skills-dot" class="w-2 h-2 rounded-full bg-indigo-600 animate-ping"></span>
+              <span class="text-indigo-900 font-semibold truncate">1. 提取技能</span>
+            </div>
+            <div id="step-match-box"
+              class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center gap-2 transition-all">
+              <span id="step-match-dot" class="w-2 h-2 rounded-full bg-slate-300"></span>
+              <span class="text-slate-600 font-medium truncate">2. 岗位匹配</span>
+            </div>
+            <div id="step-questions-box"
+              class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center gap-2 transition-all">
+              <span id="step-questions-dot" class="w-2 h-2 rounded-full bg-slate-300"></span>
+              <span class="text-slate-600 font-medium truncate">3. 定制考题</span>
+            </div>
+          </div>
+
+          <!-- 实时流式打字机终端控制台 -->
+          <div
+            class="rounded-xl bg-slate-900 border border-slate-800 p-4 font-mono text-xs text-slate-200 shadow-inner">
+            <div
+              class="flex items-center justify-between text-[11px] text-slate-400 border-b border-slate-800 pb-2 mb-2">
+              <span class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></span>
+                <span class="ml-2 text-slate-400">大模型流式思考中 (Token Stream)</span>
+              </span>
+              <span id="stream-char-badge" class="text-indigo-400 font-mono text-[10px]">0 字</span>
+            </div>
+            <pre id="stream-live-output"
+              class="h-44 overflow-y-auto whitespace-pre-wrap break-all text-slate-300 text-[11px] leading-relaxed selection:bg-indigo-600">正在连接大模型流式接口...</pre>
+          </div>
+        </div>
+
+        <!-- 状态 3: 结果展示区 (Result State) -->
+        <div id="state-result" class="hidden space-y-6">
+
+          <!-- 模块 1: 人岗匹配度诊断卡片 -->
+          <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 overflow-hidden relative">
+            <!-- 顶部 Header：左侧标题，右侧匹配指数与等级徽章并排 -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5 mb-5">
+              <div>
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                    </path>
+                  </svg>
+                  人岗匹配度诊断
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">综合评估候选人与目标职位的契合程度</p>
+              </div>
+
+              <!-- 右侧组合区域：综合匹配指数 + 评价徽章并排 -->
+              <div class="flex items-center gap-3 shrink-0 flex-wrap sm:flex-nowrap">
+                <div class="flex items-center gap-3 bg-slate-50 border border-slate-200/90 px-3.5 py-1.5 rounded-xl shadow-xs">
+                  <div class="text-right">
+                    <span class="text-[10px] font-medium text-slate-400 block leading-tight">综合匹配指数</span>
+                    <span id="match-level-text" class="text-[11px] font-bold text-slate-600 block leading-tight">评估中</span>
+                  </div>
+                  <div class="flex items-baseline font-mono font-extrabold text-2xl tracking-tight text-indigo-600">
+                    <span id="match-score">--</span><span id="match-score-unit" class="text-xs font-bold text-indigo-600/70 ml-0.5">%</span>
+                  </div>
+                  <div class="w-16 bg-slate-200 h-2 rounded-full overflow-hidden shrink-0 hidden md:block">
+                    <div id="match-progress-bar" class="bg-indigo-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                  </div>
+                </div>
+
+                <div id="match-badge" class="px-3 py-2 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shrink-0">
+                  分析完成
+                </div>
+              </div>
+            </div>
+
+            <!-- 主体内容区（全宽两列，排版极其舒展） -->
+            <div class="space-y-4">
+              <!-- 匹配评价摘要 -->
+              <div class="p-4 rounded-xl bg-slate-50/80 border border-slate-200/80">
+                <h4 class="text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  匹配评价摘要
+                </h4>
+                <p id="match-summary" class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  暂无评价摘要
+                </p>
+              </div>
+
+              <!-- 核心技能匹配度网格（两列宽度大幅增加，不再局促） -->
+              <div id="match-details-container" class="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
+                <!-- 动态插入技能与掌握程度 -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 模块 2: 候选人技能图谱卡片（横向通栏结构，一行一行展示） -->
+          <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 space-y-4">
+            <!-- 第 1 行：标题栏（只保留标题与职级徽章，互不挤占） -->
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                  </svg>
+                  候选人技能图谱
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">从简历中自动提取的技术栈、经验年限与职级定位</p>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <span id="seniority-tag"
+                  class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-violet-50 text-violet-700 border border-violet-200 shrink-0">
+                  职级: 未知
+                </span>
+              </div>
+            </div>
+
+            <!-- 第 2 行：核心技术领域与擅长方向（独立通栏横向展示） -->
+            <div class="p-3.5 rounded-xl bg-indigo-50/60 border border-indigo-100/90 flex items-start gap-2.5">
+              <div class="p-1 rounded bg-indigo-600 text-white shrink-0 mt-0.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[11px] font-bold text-indigo-900 mb-0.5">核心技术领域与专长方向：</div>
+                <p id="core-skill-desc" class="text-xs text-indigo-950/80 leading-relaxed break-words font-medium">全栈开发架构</p>
+              </div>
+            </div>
+
+            <!-- 第 3 行：履历佐证依据（通栏横向展示） -->
+            <div id="evidence-container" class="hidden p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs">
+              <span class="font-semibold text-slate-700 block mb-1">📋 简历履历佐证：</span>
+              <ul id="evidence-list" class="list-disc list-inside space-y-0.5 text-[11px] text-slate-600"></ul>
+            </div>
+
+            <!-- 第 4 行：识别出的技术关键词标签云（通栏横向展示，完整词汇不拆碎） -->
+            <div class="pt-1">
+              <h4 class="text-xs font-semibold text-slate-700 mb-2.5 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                </svg>
+                识别出的技术标签云：
+              </h4>
+              <div id="skills-list" class="flex flex-wrap gap-2 min-h-[40px] items-center">
+                <!-- 动态技能标签 -->
+                <span class="text-xs text-slate-400">正在加载技能...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 模块 3: 面试问题推荐卡片 -->
+          <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6">
+            <div class="border-b border-slate-100 pb-4 mb-4">
+              <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                  </path>
+                </svg>
+                AI 推荐针对性面试题
+              </h3>
+              <p class="text-xs text-slate-500 mt-0.5">结合候选人背景与岗位要求，深挖技能边界与实战经验</p>
+            </div>
+
+            <!-- 面试问题列表容器 -->
+            <div id="questions-list" class="space-y-3">
+              <!-- 动态问题卡片 -->
+            </div>
+          </div>
+
+          <!-- 调试：查看原始 JSON -->
+          <div class="pt-2">
+            <details class="group bg-slate-100/80 rounded-xl border border-slate-200 text-xs text-slate-600">
+              <summary class="cursor-pointer p-3 font-medium flex items-center justify-between select-none">
+                <span class="flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                  </svg>
+                  开发者调试：查看原始响应 JSON
+                </span>
+                <span class="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+              </summary>
+              <div class="p-3 pt-0">
+                <pre id="raw-json-output"
+                  class="bg-slate-900 text-slate-200 p-3 rounded-lg overflow-x-auto font-mono text-[11px] leading-relaxed max-h-64"></pre>
+              </div>
+            </details>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+  <!-- 前端逻辑脚本 (原生 JavaScript + Fetch) -->
+  <script>
+    // DOM 元素引用
+    const dropZone = document.getElementById('drop-zone');
+    const resumeFileInput = document.getElementById('resume-file');
+    const uploadPrompt = document.getElementById('upload-prompt');
+    const filePreview = document.getElementById('file-preview');
+    const fileNameEl = document.getElementById('file-name');
+    const fileSizeEl = document.getElementById('file-size');
+    const fileStatusBadge = document.getElementById('file-status-badge');
+    const removeFileBtn = document.getElementById('remove-file-btn');
+
+    const jdTextarea = document.getElementById('job-description');
+    const jdCharCount = document.getElementById('jd-char-count');
+    const fillSampleJdBtn = document.getElementById('fill-sample-jd-btn');
+
+    const analyzeBtn = document.getElementById('analyze-btn');
+    const btnIcon = document.getElementById('btn-icon');
+    const btnSpinner = document.getElementById('btn-spinner');
+    const btnText = document.getElementById('btn-text');
+
+    const errorAlert = document.getElementById('error-alert');
+    const errorMessage = document.getElementById('error-message');
+
+    const stateEmpty = document.getElementById('state-empty');
+    const stateLoading = document.getElementById('state-loading');
+    const stateResult = document.getElementById('state-result');
+
+    const matchScoreEl = document.getElementById('match-score');
+    const matchScoreUnitEl = document.getElementById('match-score-unit');
+    const matchProgressBar = document.getElementById('match-progress-bar');
+    const matchLevelText = document.getElementById('match-level-text');
+    const matchSummaryEl = document.getElementById('match-summary');
+    const matchDetailsContainer = document.getElementById('match-details-container');
+    const matchBadge = document.getElementById('match-badge');
+
+    const seniorityTag = document.getElementById('seniority-tag');
+    const coreSkillDesc = document.getElementById('core-skill-desc');
+    const evidenceContainer = document.getElementById('evidence-container');
+    const evidenceList = document.getElementById('evidence-list');
+    const skillsList = document.getElementById('skills-list');
+    const questionsList = document.getElementById('questions-list');
+    const rawJsonOutput = document.getElementById('raw-json-output');
+
+    // 当前选择的文件
+    let selectedFile = null;
+
+    // 格式化文件大小
+    function formatBytes(bytes, decimals = 1) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const dm = decimals < 0 ? 0 : decimals;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    // 提示错误信息
+    function showError(msg) {
+      errorMessage.textContent = msg;
+      errorAlert.classList.remove('hidden');
+    }
+
+    function clearError() {
+      errorAlert.classList.add('hidden');
+      errorMessage.textContent = '';
+    }
+
+    // 更新文件选中状态
+    function handleFileSelected(file) {
+      if (!file) return;
+
+      if (!file.name.toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
+        showError('请上传标准 PDF 格式的简历文件！');
+        clearFile();
+        return;
+      }
+
+      clearError();
+      selectedFile = file;
+      fileNameEl.textContent = file.name;
+      fileSizeEl.textContent = formatBytes(file.size);
+
+      uploadPrompt.classList.add('hidden');
+      filePreview.classList.remove('hidden');
+      fileStatusBadge.textContent = '已选择';
+      fileStatusBadge.className = 'text-xs text-emerald-600 font-medium';
+    }
+
+    // 清空文件
+    function clearFile() {
+      selectedFile = null;
+      resumeFileInput.value = '';
+      uploadPrompt.classList.remove('hidden');
+      filePreview.classList.add('hidden');
+      fileStatusBadge.textContent = '未选择文件';
+      fileStatusBadge.className = 'text-xs text-slate-400';
+    }
+
+    // 监听文件 input 变化
+    resumeFileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handleFileSelected(e.target.files[0]);
+      }
+    });
+
+    // 移除文件按钮
+    removeFileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      clearFile();
+    });
+
+    // 拖拽事件支持
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add('border-indigo-500', 'bg-indigo-50/50');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove('border-indigo-500', 'bg-indigo-50/50');
+      }, false);
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      if (dt && dt.files && dt.files.length > 0) {
+        handleFileSelected(dt.files[0]);
+      }
+    });
+
+    // 监听 JD 字数统计
+    jdTextarea.addEventListener('input', () => {
+      jdCharCount.textContent = jdTextarea.value.trim().length;
+      if (jdTextarea.value.trim().length > 0) {
+        clearError();
+      }
+    });
+
+    // 示例 JD 填充
+    const SAMPLE_JD = `岗位名称：高级全栈开发工程师（AI应用方向）
+
+岗位职责：
+1. 负责企业级 AI 应用平台与智能分析系统的全栈架构设计与核心功能研发；
+2. 负责后端 RESTful/WebSocket 接口及大语言模型（LLM）Prompt 与 Agent 流程编排；
+3. 优化系统性能与安全，保障高并发场景下的接口稳定性。
+
+任职要求：
+1. 3 年及以上全栈或后端研发经验，计算机相关专业本科以上学历；
+2. 熟练掌握 Python（FastAPI / Django）或 Node.js 等服务端开发技术；
+3. 熟练掌握前端核心技能（HTML5、CSS3、TypeScript、React 或 Vue），有良好工程化意识；
+4. 熟悉常用数据库（PostgreSQL / MySQL / Redis）及向量数据库，熟悉 Docker 容器化部署；
+5. 了解 OpenAI / Gemini 等主流大模型 API 接入与 Prompt 调优，有实际落地项目经验者优先。`;
+
+    fillSampleJdBtn.addEventListener('click', () => {
+      jdTextarea.value = SAMPLE_JD;
+      jdCharCount.textContent = SAMPLE_JD.length;
+      clearError();
+    });
+
+    // 设置加载状态
+    function setLoading(isLoading) {
+      if (isLoading) {
+        analyzeBtn.disabled = true;
+        btnIcon.classList.add('hidden');
+        btnSpinner.classList.remove('hidden');
+        btnText.textContent = '深度分析中...';
+
+        stateEmpty.classList.add('hidden');
+        stateResult.classList.add('hidden');
+        stateLoading.classList.remove('hidden');
+      } else {
+        analyzeBtn.disabled = false;
+        btnIcon.classList.remove('hidden');
+        btnSpinner.classList.add('hidden');
+        btnText.textContent = '开始深度分析';
+        stateLoading.classList.add('hidden');
+      }
+    }
+
+    // 渲染分析结果
+    function renderResult(data) {
+      console.log('分析结果数据:', data);
+      rawJsonOutput.textContent = JSON.stringify(data, null, 2);
+
+      // 1. 渲染匹配度信息 (Match)
+      const match = data.match || {};
+      let score = match.match_score !== undefined ? Number(match.match_score) : (match.score !== undefined ? Number(match.score) : null);
+
+      // 如果没有直接的 score，尝试赋予默认
+      if (score === null || isNaN(score)) {
+        if (typeof match === 'number') {
+          score = match;
+        } else {
+          score = 80;
+        }
+      }
+
+      // 分数如果是 0-1 之间的小数转换为百分比
+      if (score <= 1 && score > 0) {
+        score = Math.round(score * 100);
+      } else {
+        score = Math.round(score);
+      }
+      score = Math.max(0, Math.min(100, score));
+
+      matchScoreEl.textContent = score;
+      matchProgressBar.style.width = score + '%';
+
+      if (score >= 80) {
+        matchScoreEl.className = 'text-4xl font-extrabold text-emerald-600 tracking-tight font-mono';
+        matchScoreUnitEl.className = 'text-lg font-bold text-emerald-600/70 ml-0.5';
+        matchProgressBar.className = 'bg-emerald-500 h-full rounded-full transition-all duration-500';
+        matchLevelText.textContent = '高度匹配 · 强烈推荐面试';
+        matchLevelText.className = 'text-[11px] font-semibold text-emerald-600 mt-2';
+        matchBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
+        matchBadge.textContent = '高匹配度';
+      } else if (score >= 60) {
+        matchScoreEl.className = 'text-4xl font-extrabold text-indigo-600 tracking-tight font-mono';
+        matchScoreUnitEl.className = 'text-lg font-bold text-indigo-600/70 ml-0.5';
+        matchProgressBar.className = 'bg-indigo-600 h-full rounded-full transition-all duration-500';
+        matchLevelText.textContent = '较为匹配 · 具备关键核心能力';
+        matchLevelText.className = 'text-[11px] font-semibold text-indigo-600 mt-2';
+        matchBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200';
+        matchBadge.textContent = '良好匹配';
+      } else {
+        matchScoreEl.className = 'text-4xl font-extrabold text-amber-600 tracking-tight font-mono';
+        matchScoreUnitEl.className = 'text-lg font-bold text-amber-600/70 ml-0.5';
+        matchProgressBar.className = 'bg-amber-500 h-full rounded-full transition-all duration-500';
+        matchLevelText.textContent = '存在差距 · 建议重点考察薄弱项';
+        matchLevelText.className = 'text-[11px] font-semibold text-amber-600 mt-2';
+        matchBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200';
+        matchBadge.textContent = '一般匹配';
+      }
+
+      // 摘要说明
+      const summaryText = match.summary || match.reason || (typeof match === 'string' ? match : '候选人具备相应开发基础，建议结合下方定制面试题进行技术深度考察。');
+      matchSummaryEl.textContent = summaryText;
+
+      // 优势与技能匹配列表
+      matchDetailsContainer.innerHTML = '';
+      if (Array.isArray(match.skill_matches) && match.skill_matches.length > 0) {
+        match.skill_matches.forEach(item => {
+          const div = document.createElement('div');
+          const level = (item.match_level || '中').trim();
+          let cardBg = 'bg-slate-50/80 border-slate-200/90 text-slate-800';
+          let badgeStyle = 'bg-slate-100 text-slate-700 border-slate-300';
+
+          if (level === '强' || level.toLowerCase() === 'senior') {
+            cardBg = 'bg-emerald-50/70 border-emerald-200/90 text-emerald-950';
+            badgeStyle = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+          } else if (level === '中' || level.toLowerCase() === 'mid') {
+            cardBg = 'bg-indigo-50/60 border-indigo-200/80 text-indigo-950';
+            badgeStyle = 'bg-indigo-100 text-indigo-800 border-indigo-200';
+          } else if (level === '弱' || level.toLowerCase() === 'junior') {
+            cardBg = 'bg-slate-50 border-slate-200 text-slate-700';
+            badgeStyle = 'bg-slate-200/80 text-slate-600 border-slate-300';
+          }
+
+          div.className = `p-3 rounded-xl border ${cardBg} flex flex-col justify-between transition-all`;
+          const ev = Array.isArray(item.evidence) ? item.evidence.join('；') : (item.evidence || '');
+          div.innerHTML = `
+            <div>
+              <div class="flex items-start justify-between gap-2 mb-1.5">
+                <span class="font-bold text-xs leading-snug break-words flex-1 min-w-0">${item.skill || '核心技术'}</span>
+                <span class="shrink-0 px-2 py-0.5 rounded text-[10px] font-semibold border ${badgeStyle}">${level}</span>
+              </div>
+              ${ev ? `<p class="text-[11px] text-slate-500 leading-relaxed break-words">${ev}</p>` : ''}
+            </div>
+          `;
+          matchDetailsContainer.appendChild(div);
+        });
+      }
+
+      // 建议列表
+      if (Array.isArray(match.suggestions) && match.suggestions.length > 0) {
+        const sugDiv = document.createElement('div');
+        sugDiv.className = 'md:col-span-2 p-3 rounded-xl bg-indigo-50/70 border border-indigo-100 text-indigo-950 mt-1';
+        sugDiv.innerHTML = `
+          <span class="font-semibold text-xs block mb-1 text-indigo-900">💡 考察与提升建议：</span>
+          <ul class="list-disc list-inside space-y-1 text-xs text-slate-600">
+            ${match.suggestions.map(s => `<li>${s}</li>`).join('')}
+          </ul>
+        `;
+        matchDetailsContainer.appendChild(sugDiv);
+      }
+
+      // 2. 渲染技能信息 (Skills)
+      const skillsData = data.skills || {};
+      const levelMap = {
+        'junior': '初级 (Junior)',
+        'mid': '中级 (Mid-level)',
+        'senior': '资深 (Senior)',
+        '强': '精通 / 强',
+        '中': '熟练 / 中',
+        '弱': '了解 / 弱'
+      };
+      const levelVal = (skillsData.match_level || '').toLowerCase();
+      if (seniorityTag) {
+        seniorityTag.textContent = `职级定位: ${levelMap[levelVal] || skillsData.match_level || '良好'}`;
+      }
+
+      // 核心领域与擅长方向（横向独立通栏展示）
+      if (coreSkillDesc) {
+        coreSkillDesc.textContent = skillsData.skill || '熟练掌握现代化技术栈全流程研发、核心业务架构与工程化落地';
+      }
+
+      // 履历佐证依据（横向独立通栏展示）
+      if (evidenceContainer && evidenceList) {
+        const evList = Array.isArray(skillsData.evidence) ? skillsData.evidence : (skillsData.evidence ? [skillsData.evidence] : []);
+        if (evList.length > 0) {
+          evidenceList.innerHTML = evList.map(e => `<li>${e}</li>`).join('');
+          evidenceContainer.classList.remove('hidden');
+        } else {
+          evidenceContainer.classList.add('hidden');
+        }
+      }
+
+      // 提取技术栈列表：绝不按空格拆碎词汇（保护 Vue 3, Element Plus, Ant Design 等词汇完整性）
+      let skillList = [];
+      if (Array.isArray(skillsData.skills) && skillsData.skills.length > 0) {
+        skillList = skillsData.skills;
+      } else if (typeof skillsData.skill === 'string' && skillsData.skill) {
+        // 只按中文顿号、逗号、分号或换行分割，保留单词内部的空格
+        skillList = skillsData.skill.split(/[、,，;；\n]+/).map(s => s.trim()).filter(Boolean);
+      }
+
+      skillsList.innerHTML = '';
+      if (skillList.length === 0) {
+        skillsList.innerHTML = '<span class="text-xs text-slate-400">已自动归纳核心技能</span>';
+      } else {
+        skillList.forEach(skill => {
+          const badge = document.createElement('span');
+          badge.className = 'inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/70 hover:bg-indigo-100 transition-colors shadow-sm';
+          badge.innerHTML = `
+            <svg class="w-3 h-3 mr-1 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            ${skill}
+          `;
+          skillsList.appendChild(badge);
+        });
+      }
+
+      // 3. 渲染面试问题 (Interview Questions)
+      let questions = data.interview_questions || [];
+      if (!Array.isArray(questions)) {
+        if (typeof questions === 'string') {
+          questions = [questions];
+        } else if (typeof questions === 'object') {
+          questions = Object.values(questions);
+        }
+      }
+
+      questionsList.innerHTML = '';
+      if (questions.length === 0) {
+        questionsList.innerHTML = `
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-center text-xs text-slate-400">
+            暂未生成专属面试问题
+          </div>
+        `;
+      } else {
+        questions.forEach((q, idx) => {
+          const qText = typeof q === 'string' ? q : (q.question || q.text || JSON.stringify(q));
+          const qPurpose = q.why_asked || q.purpose || q.category || '';
+
+          const qCard = document.createElement('div');
+          qCard.className = 'p-4 rounded-xl bg-slate-50 hover:bg-indigo-50/40 border border-slate-200/90 transition-all duration-200 space-y-1.5';
+          qCard.innerHTML = `
+            <div class="flex items-start gap-3">
+              <span class="w-6 h-6 rounded-lg bg-indigo-600 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                ${idx + 1}
+              </span>
+              <div class="flex-1">
+                <p class="text-sm font-medium text-slate-800 leading-relaxed">${qText}</p>
+                ${qPurpose ? `<p class="text-xs text-indigo-600 mt-1 font-normal flex items-center gap-1"><span class="font-medium">考察维度：</span>${qPurpose}</p>` : ''}
+              </div>
+            </div>
+          `;
+          questionsList.appendChild(qCard);
+        });
+      }
+
+      // 切换视图为结果
+      stateLoading.classList.add('hidden');
+      stateEmpty.classList.add('hidden');
+      stateResult.classList.remove('hidden');
+
+      // 平滑滚动到结果区域
+      stateResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // 触发分析请求（流式输出处理）
+    async function handleAnalyze() {
+      clearError();
+
+      // 校验文件
+      if (!selectedFile) {
+        showError('请先上传候选人的 PDF 简历文件！');
+        dropZone.scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+
+      // 校验 JD
+      const jdText = jdTextarea.value.trim();
+      if (!jdText) {
+        showError('请输入目标岗位的职位描述 (JD)！');
+        jdTextarea.focus();
+        return;
+      }
+
+      // 组装 FormData
+      const formData = new FormData();
+      formData.append('resume', selectedFile);
+      formData.append('job_description', jdText);
+
+      // DOM 状态元素
+      const streamLiveOutput = document.getElementById('stream-live-output');
+      const streamStatusTitle = document.getElementById('stream-status-title');
+      const streamCharBadge = document.getElementById('stream-char-badge');
+      const stepSkillsBox = document.getElementById('step-skills-box');
+      const stepSkillsDot = document.getElementById('step-skills-dot');
+      const stepMatchBox = document.getElementById('step-match-box');
+      const stepMatchDot = document.getElementById('step-match-dot');
+      const stepQuestionsBox = document.getElementById('step-questions-box');
+      const stepQuestionsDot = document.getElementById('step-questions-dot');
+
+      // 重置步骤状态
+      if (streamLiveOutput) streamLiveOutput.textContent = '🚀 建立流式连接中...\n';
+      let totalStreamChars = 0;
+      if (streamCharBadge) streamCharBadge.textContent = '0 字';
+
+      function updateStepState(step, status) {
+        const boxMap = { skills: stepSkillsBox, match: stepMatchBox, questions: stepQuestionsBox };
+        const dotMap = { skills: stepSkillsDot, match: stepMatchDot, questions: stepQuestionsDot };
+        const box = boxMap[step];
+        const dot = dotMap[step];
+        if (!box || !dot) return;
+
+        if (status === 'running') {
+          box.className = 'p-2.5 rounded-lg bg-indigo-50 border border-indigo-300 text-indigo-900 font-semibold shadow-sm transition-all';
+          dot.className = 'w-2 h-2 rounded-full bg-indigo-600 animate-ping';
+        } else if (status === 'done') {
+          box.className = 'p-2.5 rounded-lg bg-emerald-50 border border-emerald-300 text-emerald-800 font-semibold transition-all';
+          dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+        }
+      }
+
+      const finalResult = {
+        skills: {},
+        match: {},
+        interview_questions: []
+      };
+
+
+
+      function processEventLine(line) {
+        const cleanLine = line.trim();
+        if (!cleanLine || !cleanLine.startsWith('data:')) return;
+        const jsonStr = cleanLine.replace(/^data:\s*/, '').trim();
+        if (!jsonStr) return;
+
+        try {
+          const eventData = JSON.parse(jsonStr);
+
+          // 错误处理
+          if (eventData.stage === 'error') {
+            throw new Error(eventData.message || '流式处理中发生错误');
+          }
+
+          // 阶段状态变更
+          if (eventData.status === 'start') {
+            if (eventData.stage === 'skills') {
+              updateStepState('skills', 'running');
+              streamStatusTitle.textContent = 'AI 正在提取简历技能标签...';
+              streamLiveOutput.textContent += '\n\n=== 阶段 1: 提取简历核心技能 ===\n';
+            } else if (eventData.stage === 'match') {
+              updateStepState('match', 'running');
+              streamStatusTitle.textContent = 'AI 正在分析人岗匹配契合度...';
+              streamLiveOutput.textContent += '\n\n=== 阶段 2: 分析人岗匹配度 ===\n';
+            } else if (eventData.stage === 'questions') {
+              updateStepState('questions', 'running');
+              streamStatusTitle.textContent = 'AI 正在生成针对性面试题目...';
+              streamLiveOutput.textContent += '\n\n=== 阶段 3: 定制面试问题 ===\n';
+            }
+          }
+
+          // 流式 Chunk 输出
+          if (eventData.chunk) {
+            streamLiveOutput.textContent += eventData.chunk;
+            totalStreamChars += eventData.chunk.length;
+            if (streamCharBadge) streamCharBadge.textContent = `${totalStreamChars} 字`;
+            streamLiveOutput.scrollTop = streamLiveOutput.scrollHeight;
+          }
+
+          // 阶段完成与数据装载
+          if (eventData.status === 'done') {
+            updateStepState(eventData.stage, 'done');
+            if (eventData.stage === 'skills') {
+              finalResult.skills = eventData.data || {};
+            } else if (eventData.stage === 'match') {
+              finalResult.match = eventData.data || {};
+            } else if (eventData.stage === 'questions') {
+              finalResult.interview_questions = eventData.data || [];
+            }
+          }
+
+        } catch (jsonErr) {
+          console.debug('跳过非标准流片段:', jsonStr);
+        }
+      }
+
+      try {
+        setLoading(true);
+        updateStepState('skills', 'running');
+
+        const response = await fetch('/analyze/resume', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          let errDetail = `HTTP ${response.status} 错误`;
+          try {
+            const errJson = await response.json();
+            errDetail = errJson.detail || errDetail;
+          } catch (_) {}
+          throw new Error(errDetail);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const blocks = buffer.split(/\r?\n\r?\n/);
+          buffer = blocks.pop() || ''; // 最后一个可能尚不完整，留给下次
+
+          for (const block of blocks) {
+            const subLines = block.split(/\r?\n/);
+            for (const subLine of subLines) {
+              processEventLine(subLine);
+            }
+          }
+        }
+
+        // 补读残留在 buffer 中的最后一条消息（避免因结尾无双换行被忽略）
+        if (buffer && buffer.trim()) {
+          const remainingLines = buffer.split(/\r?\n/);
+          for (const line of remainingLines) {
+            processEventLine(line);
+          }
+          buffer = '';
+        }
+
+        // 数据流已接收完毕，立即同步渲染最终结果卡片
+        console.log('数据流接收完毕，渲染最终结果:', finalResult);
+        renderResult(finalResult);
+
+      } catch (err) {
+        console.error('分析失败:', err);
+        showError(err.message || '分析过程中发生未知错误，请检查后端服务。');
+        stateLoading.classList.add('hidden');
+        if (stateResult.classList.contains('hidden')) {
+          stateEmpty.classList.remove('hidden');
+        }
+      } finally {
+        analyzeBtn.disabled = false;
+        btnIcon.classList.remove('hidden');
+        btnSpinner.classList.add('hidden');
+        btnText.textContent = '开始深度分析';
+      }
+    }
+
+    // 绑定分析按钮点击
+    analyzeBtn.addEventListener('click', handleAnalyze);
+
+  </script>
+</body>
+
+</html>
