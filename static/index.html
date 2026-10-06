@@ -327,7 +327,8 @@
           <!-- 模块 1: 人岗匹配度诊断卡片 -->
           <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 overflow-hidden relative">
             <!-- 顶部 Header：左侧标题，右侧匹配指数与等级徽章并排 -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5 mb-5">
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5 mb-5">
               <div>
                 <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
                   <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -342,20 +343,25 @@
 
               <!-- 右侧组合区域：综合匹配指数 + 评价徽章并排 -->
               <div class="flex items-center gap-3 shrink-0 flex-wrap sm:flex-nowrap">
-                <div class="flex items-center gap-3 bg-slate-50 border border-slate-200/90 px-3.5 py-1.5 rounded-xl shadow-xs">
+                <div
+                  class="flex items-center gap-3 bg-slate-50 border border-slate-200/90 px-3.5 py-1.5 rounded-xl shadow-xs">
                   <div class="text-right">
                     <span class="text-[10px] font-medium text-slate-400 block leading-tight">综合匹配指数</span>
-                    <span id="match-level-text" class="text-[11px] font-bold text-slate-600 block leading-tight">评估中</span>
+                    <span id="match-level-text"
+                      class="text-[11px] font-bold text-slate-600 block leading-tight">评估中</span>
                   </div>
                   <div class="flex items-baseline font-mono font-extrabold text-2xl tracking-tight text-indigo-600">
-                    <span id="match-score">--</span><span id="match-score-unit" class="text-xs font-bold text-indigo-600/70 ml-0.5">%</span>
+                    <span id="match-score">--</span><span id="match-score-unit"
+                      class="text-xs font-bold text-indigo-600/70 ml-0.5">%</span>
                   </div>
                   <div class="w-16 bg-slate-200 h-2 rounded-full overflow-hidden shrink-0 hidden md:block">
-                    <div id="match-progress-bar" class="bg-indigo-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    <div id="match-progress-bar" class="bg-indigo-600 h-full rounded-full transition-all duration-500"
+                      style="width: 0%"></div>
                   </div>
                 </div>
 
-                <div id="match-badge" class="px-3 py-2 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shrink-0">
+                <div id="match-badge"
+                  class="px-3 py-2 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 shrink-0">
                   分析完成
                 </div>
               </div>
@@ -410,12 +416,14 @@
             <div class="p-3.5 rounded-xl bg-indigo-50/60 border border-indigo-100/90 flex items-start gap-2.5">
               <div class="p-1 rounded bg-indigo-600 text-white shrink-0 mt-0.5">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z">
+                  </path>
                 </svg>
               </div>
               <div class="flex-1 min-w-0">
                 <div class="text-[11px] font-bold text-indigo-900 mb-0.5">核心技术领域与专长方向：</div>
-                <p id="core-skill-desc" class="text-xs text-indigo-950/80 leading-relaxed break-words font-medium">全栈开发架构</p>
+                <p id="core-skill-desc" class="text-xs text-indigo-950/80 leading-relaxed break-words font-medium">
+                  全栈开发架构</p>
               </div>
             </div>
 
@@ -429,7 +437,9 @@
             <div class="pt-1">
               <h4 class="text-xs font-semibold text-slate-700 mb-2.5 flex items-center gap-1.5">
                 <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z">
+                  </path>
                 </svg>
                 识别出的技术标签云：
               </h4>
@@ -1009,7 +1019,7 @@
         setLoading(true);
         updateStepState('skills', 'running');
 
-        const response = await fetch('/analyze/resume', {
+        const response = await fetch('analyze/resume', {
           method: 'POST',
           body: formData,
         });
@@ -1019,7 +1029,7 @@
           try {
             const errJson = await response.json();
             errDetail = errJson.detail || errDetail;
-          } catch (_) {}
+          } catch (_) { }
           throw new Error(errDetail);
         }
 
