@@ -25,6 +25,9 @@ app = FastAPI(title="Resume Analyzer API")
 # 挂载静态文件目录
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
 
 @app.get("/")
 async def index() -> FileResponse:
