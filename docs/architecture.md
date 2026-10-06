@@ -23,26 +23,26 @@
 ```mermaid
 flowchart TB
     subgraph Client["前端表现层 (Client / Browser)"]
-        UI["SPA 交互界面\n(HTML5 + Tailwind CSS)"]
-        StreamReader["Fetch 流式读取器\n(ReadableStream / SSE 解码)"]
-        StateMgr["前端状态机\n(阶段流转 / 进度跟踪)"]
+        UI["SPA 交互界面<br/>(HTML5 + Tailwind CSS)"]
+        StreamReader["Fetch 流式读取器<br/>(ReadableStream / SSE 解码)"]
+        StateMgr["前端状态机<br/>(阶段流转 / 进度跟踪)"]
         UI --> StreamReader
         StreamReader --> StateMgr
     end
 
     subgraph API["接入层 (FastAPI Web Layer)"]
-        MainApp["FastAPI 核心入口 (app/main.py)"]
-        StaticRoute["静态资源服务 (/static)"]
-        StreamEndpoint["流式分析接口\nPOST /analyze/resume"]
+        MainApp["FastAPI 核心入口<br/>(app/main.py)"]
+        StaticRoute["静态资源服务<br/>(/static)"]
+        StreamEndpoint["流式分析接口<br/>POST /analyze/resume"]
         MainApp --> StaticRoute
         MainApp --> StreamEndpoint
     end
 
     subgraph Services["业务编排与解析层 (Core Services)"]
-        ResumeParser["PDF 解析服务\n(services/resume_parser.py)"]
-        Analyzer["分析流水线编排引擎\n(services/analyzer.py)"]
-        PromptEngine["领域提示词模板\n(prompts/*.py)"]
-        DataCleaner["Prompt 安全插值 & JSON 清洗器\n(safe_format_prompt / clean_json_text)"]
+        ResumeParser["PDF 解析服务<br/>(services/resume_parser.py)"]
+        Analyzer["分析流水线编排引擎<br/>(services/analyzer.py)"]
+        PromptEngine["领域提示词模板<br/>(prompts/*.py)"]
+        DataCleaner["Prompt 安全插值 & JSON 清洗器<br/>(safe_format_prompt / clean_json_text)"]
         
         StreamEndpoint --> ResumeParser
         StreamEndpoint --> Analyzer
@@ -51,27 +51,27 @@ flowchart TB
     end
 
     subgraph LLM_Adapter["模型提供商适配层 (Provider Layer)"]
-        Factory["Provider 工厂 (get_provider)"]
-        BaseProvider["LLMProvider 抽象基类\n(chat / stream_chat)"]
-        DeepSeek["DeepSeekProvider\n(deepseek-chat)"]
-        Qwen["QwenProvider\n(qwen-turbo)"]
+        Factory["Provider 工厂<br/>(get_provider)"]
+        BaseProvider["LLMProvider 抽象基类<br/>(chat / stream_chat)"]
+        DeepSeek["DeepSeekProvider<br/>(deepseek-chat)"]
+        Qwen["QwenProvider<br/>(qwen-turbo)"]
         
         Analyzer --> Factory
         Factory --> BaseProvider
-        BaseProvider <|-- DeepSeek
-        BaseProvider <|-- Qwen
+        BaseProvider -.->|实现| DeepSeek
+        BaseProvider -.->|实现| Qwen
     end
 
     subgraph External["外部基础设施与模型 API (External APIs)"]
-        DeepSeekAPI["DeepSeek 官方 API\n(api.deepseek.com)"]
-        QwenAPI["阿里 DashScope API\n(dashscope.aliyuncs.com)"]
+        DeepSeekAPI["DeepSeek 官方 API<br/>(api.deepseek.com)"]
+        QwenAPI["阿里 DashScope API<br/>(dashscope.aliyuncs.com)"]
         
         DeepSeek -->|HTTPS/SSE| DeepSeekAPI
         Qwen -->|HTTPS/SSE| QwenAPI
     end
 
-    Client -->|HTTP POST Multipart| StreamEndpoint
-    StreamEndpoint -->|SSE text/event-stream| Client
+    UI -->|HTTP POST Multipart| StreamEndpoint
+    StreamEndpoint -->|SSE text/event-stream| UI
 ```
 
 ---
@@ -100,32 +100,32 @@ flowchart TB
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as 用户 (HR/面试官)
-    participant Front as 前端界面 (index.html)
-    participant API as FastAPI (main.py)
-    participant Parser as PDF解析器 (resume_parser.py)
-    participant Analyzer as 分析编排引擎 (analyzer.py)
-    participant Provider as LLM Provider (DeepSeek/Qwen)
-    participant ExtLLM as 外部模型大模型服务
+    actor User as 用户
+    participant Front as 前端界面
+    participant API as FastAPI后端
+    participant Parser as PDF解析服务
+    participant Analyzer as 分析编排引擎
+    participant Provider as LLM适配层
+    participant ExtLLM as 外部大模型API
 
-    User->>Front: 1. 上传 PDF 简历 + 输入/填入岗位 JD
-    User->>Front: 2. 点击 "开始深度分析"
+    User->>Front: 上传 PDF 简历并输入岗位 JD
+    User->>Front: 点击开始深度分析
     Front->>API: POST /analyze/resume (multipart/form-data)
     
     activate API
     API->>Parser: extract_text_from_pdf(pdf_bytes)
-    Parser-->>API: 返回提取的简历纯文本 resume_text
+    Parser-->>API: 返回简历纯文本 resume_text
     
-    opt 文本为空
+    opt 简历文本为空
         API-->>Front: HTTP 400 Bad Request
     end
 
-    API-->>Front: HTTP 200 (StreamingResponse text/event-stream)
+    API-->>Front: HTTP 200 (建立 SSE 连接)
     
     %% 阶段一：技能提取
     rect rgb(240, 248, 255)
-        note over API, ExtLLM: 阶段 1：候选人技能图谱提取 (skills)
-        API->>Front: SSE event: {"stage": "skills", "status": "start"}
+        Note over API, ExtLLM: 阶段 1：候选人技能图谱提取 (skills)
+        API->>Front: SSE 事件 [stage=skills, status=start]
         API->>Analyzer: extract_skills_stream(resume_text)
         Analyzer->>Provider: stream_chat(messages)
         Provider->>ExtLLM: POST /chat/completions (stream=True)
@@ -133,18 +133,18 @@ sequenceDiagram
             ExtLLM-->>Provider: SSE chunk (delta content)
             Provider-->>Analyzer: yield chunk
             Analyzer-->>API: yield chunk
-            API-->>Front: SSE event: {"stage": "skills", "chunk": "..."}
+            API-->>Front: SSE 数据块 [stage=skills, 推送 Token]
             Front->>Front: 终端控制台打字机回显
         end
-        Analyzer->>Analyzer: parse_skills_data(skills_raw)
-        API->>Front: SSE event: {"stage": "skills", "status": "done", "data": SkillAnalysis}
+        Analyzer->>Analyzer: parse_skills_data (解析JSON)
+        API->>Front: SSE 事件 [stage=skills, status=done, 装载 SkillAnalysis]
         Front->>Front: 渲染技术标签云与能力等级
     end
 
     %% 阶段二：人岗匹配
     rect rgb(245, 255, 245)
-        note over API, ExtLLM: 阶段 2：人岗契合度诊断 (match)
-        API->>Front: SSE event: {"stage": "match", "status": "start"}
+        Note over API, ExtLLM: 阶段 2：人岗契合度诊断 (match)
+        API->>Front: SSE 事件 [stage=match, status=start]
         API->>Analyzer: analyze_job_match_stream(resume_text, job_desc)
         Analyzer->>Provider: stream_chat(messages)
         Provider->>ExtLLM: POST /chat/completions (stream=True)
@@ -152,18 +152,18 @@ sequenceDiagram
             ExtLLM-->>Provider: SSE chunk
             Provider-->>Analyzer: yield chunk
             Analyzer-->>API: yield chunk
-            API-->>Front: SSE event: {"stage": "match", "chunk": "..."}
+            API-->>Front: SSE 数据块 [stage=match, 推送 Token]
             Front->>Front: 终端控制台打字机回显
         end
-        Analyzer->>Analyzer: parse_job_match_data(match_raw)
-        API->>Front: SSE event: {"stage": "match", "status": "done", "data": JobMatchResult}
-        Front->>Front: 渲染综合评分仪表盘、评级徽章、技能匹配矩阵
+        Analyzer->>Analyzer: parse_job_match_data (解析JSON)
+        API->>Front: SSE 事件 [stage=match, status=done, 装载 JobMatchResult]
+        Front->>Front: 渲染综合评分、评级徽章与匹配矩阵
     end
 
     %% 阶段三：面试考题定制
     rect rgb(255, 250, 245)
-        note over API, ExtLLM: 阶段 3：分级面试题生成 (questions)
-        API->>Front: SSE event: {"stage": "questions", "status": "start"}
+        Note over API, ExtLLM: 阶段 3：分级面试题生成 (questions)
+        API->>Front: SSE 事件 [stage=questions, status=start]
         API->>Analyzer: generate_interview_questions_stream(resume_text, job_desc)
         Analyzer->>Provider: stream_chat(messages)
         Provider->>ExtLLM: POST /chat/completions (stream=True)
@@ -171,18 +171,18 @@ sequenceDiagram
             ExtLLM-->>Provider: SSE chunk
             Provider-->>Analyzer: yield chunk
             Analyzer-->>API: yield chunk
-            API-->>Front: SSE event: {"stage": "questions", "chunk": "..."}
+            API-->>Front: SSE 数据块 [stage=questions, 推送 Token]
             Front->>Front: 终端控制台打字机回显
         end
-        Analyzer->>Analyzer: parse_interview_questions_data(questions_raw)
-        API->>Front: SSE event: {"stage": "questions", "status": "done", "data": questions_list}
-        Front->>Front: 渲染分级面试题卡片与考核意图说明
+        Analyzer->>Analyzer: parse_interview_questions_data (解析JSON)
+        API->>Front: SSE 事件 [stage=questions, status=done, 装载考题列表]
+        Front->>Front: 渲染分级面试题卡片与考核意图
     end
 
     %% 结束阶段
-    API->>Front: SSE event: {"stage": "all", "status": "completed"}
+    API->>Front: SSE 事件 [stage=all, status=completed]
     deactivate API
-    Front->>User: 展示完整分析报告，更新完成指示器
+    Front->>User: 展示完整分析报告，更新完成状态
 ```
 
 ---
@@ -283,20 +283,20 @@ class InterviewQuestion(BaseModel):
 
 ```mermaid
 flowchart LR
-    Client[Web 浏览器] -->|HTTPS| Nginx[Nginx 反向代理\n(启用 SSE stream 优化)]
+    Client["Web 浏览器"] -->|HTTPS| Nginx["Nginx 反向代理<br/>(启用 SSE stream 优化)"]
     
     subgraph Cluster["应用集群"]
-        App1[FastAPI 实例 1]
-        App2[FastAPI 实例 2]
+        App1["FastAPI 实例 1"]
+        App2["FastAPI 实例 2"]
     end
     
     Nginx --> App1
     Nginx --> App2
     
-    App1 --> Redis[(Redis 任务缓存/限流)]
+    App1 --> Redis[("Redis 任务缓存与限流")]
     App2 --> Redis
     
-    App1 --> ProviderPool[LLM 负载网关 / 本地 Ollama]
+    App1 --> ProviderPool["LLM 负载网关 / 本地 Ollama"]
     App2 --> ProviderPool
 ```
 
