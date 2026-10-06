@@ -21,6 +21,20 @@ from app.services.analyzer import (
 
 # 创建 FastAPI 应用
 app = FastAPI(title="Resume Analyzer API")
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://liudongxu.cloud",
+        "https://liudongxu.cloud",
+        "http://www.liudongxu.cloud",
+        "https://www.liudongxu.cloud",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # 挂载静态文件目录
 app.mount("/static", StaticFiles(directory="static"), name="static")
