@@ -12,7 +12,8 @@ class QwenProvider(LLMProvider):
         self.api_key = os.getenv("QWEN_API_KEY")
         # API 地址和模型名，写在类里方便后续修改
         self.base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
-        self.model = "qwen-turbo"
+        # 默认使用通义千问商业 API 最便宜的一档 qwen-turbo
+        self.model = os.getenv("QWEN_MODEL", "qwen-turbo")
     
     async def chat(self, messages: list[dict]) -> str:
         """非流式调用"""

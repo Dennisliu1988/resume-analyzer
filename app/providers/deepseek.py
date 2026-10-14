@@ -12,7 +12,8 @@ class DeepSeekProvider(LLMProvider):
         self.api_key = os.getenv("DEEPSEEK_API_KEY")
         # API 地址和模型名，写在类里方便后续修改
         self.base_url = "https://api.deepseek.com/chat/completions"
-        self.model = "deepseek-chat"
+        # 默认使用官方性价比最高且最便宜的 deepseek-chat (DeepSeek-V3)
+        self.model = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
     
     async def chat(self, messages: list[dict]) -> str:
         """非流式调用"""
@@ -34,7 +35,7 @@ class DeepSeekProvider(LLMProvider):
         """流式调用"""
         if not self.api_key:
             raise ValueError("DEEPSEEK_API_KEY 未配置")
-        print('走这里了吗')
+        
         async with httpx.AsyncClient() as client:
             async with client.stream(
                 "POST",
