@@ -1,10 +1,10 @@
+<a id="top" name="top"></a>
+
 # ResumeAI - LLM-Powered Resume Analysis & Job-Fit Diagnostic System
 
 <div align="center">
 
-<p align="center">
-  <b>🇬🇧 English</b> | <a href="#chinese-version"><b>🇨🇳 简体中文</b></a>
-</p>
+### [🇬🇧 English](#top) &nbsp; | &nbsp; [🇨🇳 简体中文](#chinese)
 
 <p align="center">
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python Version" /></a>
