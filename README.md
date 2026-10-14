@@ -292,21 +292,13 @@ uv run uvicorn app.main:app --reload
 
 ---
 
-<br/>
-<br/>
-
-<div id="chinese-version"></div>
-
----
+<a id="chinese" name="chinese"></a>
 
 # 🇨🇳 ResumeAI - 智能简历分析与人岗匹配诊断系统
 
 <div align="center">
 
-<p align="center">
-  <a href="#resumeai---llm-powered-resume-analysis--job-fit-diagnostic-system"><b>🇬🇧 English</b></a>
-   | <a href="#chinese-version"><b>🇨🇳 简体中文</b></a>
-</p>
+### [🇬🇧 English](#top) &nbsp; | &nbsp; [🇨🇳 简体中文](#chinese)
 
 <p align="center">
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python Version" /></a>
