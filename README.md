@@ -1,17 +1,337 @@
-# ResumeAI - 智能简历分析与人岗匹配诊断系统
+# ResumeAI - LLM-Powered Resume Analysis & Job-Fit Diagnostic System
 
 <div align="center">
 
-![Python](https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688?logo=fastapi&logoColor=white)
-![Pydantic](https://img.shields.io/badge/Pydantic-v2-E92063?logo=pydantic&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.x-38B2AC?logo=tailwind-css&logoColor=white)
-![uv](https://img.shields.io/badge/uv-Package%20Manager-DE5FE9?logo=astral&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green.svg)
+<p align="center">
+  <b>🇬🇧 English</b> | <a href="#chinese-version"><b>🇨🇳 简体中文</b></a>
+</p>
 
-**基于大语言模型（LLM）的全栈智能招聘评估工具，支持原生 PDF 简历解析、技能图谱提取、人岗契合度诊断与定制化面试题生成。**
+<p align="center">
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python Version" /></a>
+  <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-0.115%2B-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI" /></a>
+  <a href="https://docs.pydantic.dev/"><img src="https://img.shields.io/badge/Pydantic-v2-E92063?style=flat-square&logo=pydantic&logoColor=white" alt="Pydantic" /></a>
+  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/TailwindCSS-3.x-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" alt="TailwindCSS" /></a>
+  <a href="https://github.com/astral-sh/uv"><img src="https://img.shields.io/badge/uv-Package%20Manager-DE5FE9?style=flat-square&logo=astral&logoColor=white" alt="uv" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License" /></a>
+</p>
 
-[快速开始](#-快速启动指南) • [核心特性](#-核心特性) • [系统架构](#-系统架构与工作流程) • [API 文档](#-api-接口参考) • [常见问题](#-常见问题--排错指南)
+<p align="center">
+  <b>A full-stack, production-ready recruitment assessment toolkit powered by Large Language Models (LLM). Features native PDF parsing, candidate skill profiling, multi-dimensional job matching diagnostics, and tailored interview question generation.</b>
+</p>
+
+<p align="center">
+  <a href="#-overview">Overview</a> •
+  <a href="#-key-features">Key Features</a> •
+  <a href="#-tech-stack">Tech Stack</a> •
+  <a href="#-architecture--workflow">Architecture</a> •
+  <a href="#-project-structure">Structure</a> •
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-usage-guide--webui-demo">Usage Guide</a> •
+  <a href="#-api-reference">API Reference</a> •
+  <a href="#-faq--troubleshooting">FAQ</a>
+</p>
+
+</div>
+
+---
+
+## 📖 Overview
+
+**ResumeAI** is an AI-powered resume evaluation and job-fit diagnostic platform tailored for technical recruiters, HR professionals, headhunters, and engineering managers.
+
+In traditional recruitment workflows, manual resume screening is time-consuming, prone to subjective bias, and struggles to accurately benchmark candidate competencies against specific Job Description (JD) requirements. ResumeAI bridges this gap by parsing candidates' native PDF resumes and target JDs, orchestrating structured prompts with modern LLMs (such as DeepSeek and Alibaba Tongyi Qwen), and streaming **real-time diagnostic reports and customized interview questions** via **Server-Sent Events (SSE)**.
+
+The frontend is built with a clean, modern UI dashboard (Vanilla HTML5 + Fetch Streaming API + Tailwind CSS) with zero Node.js build overhead, providing a lightweight, turnkey experience.
+
+---
+
+## ✨ Key Features
+
+- 📄 **Fast Native PDF Resume Parsing**: Extracts structured text directly from PDF resumes using `pypdf`, filtering out blank lines and layout noise.
+- 🎯 **Automated Candidate Skill Profiling**:
+  - **Skill Tag Cloud**: Accurately extracts technical keywords while preserving multi-word terminology (e.g., `Vue 3`, `Element Plus`, `RESTful API`).
+  - **Seniority & Specialization**: Identifies primary technical domains and overall seniority level (Junior / Mid / Senior).
+  - **Evidence Traceability**: Extracts concrete supporting facts directly from the resume to ensure all assessments are verifiable.
+- 📊 **Multi-Dimensional Job-Fit Diagnostics**:
+  - **Overall Match Index**: Quantitative 0–100 score dial paired with clear visual rating badges (High / Good / Moderate).
+  - **Executive Summary**: Highlights candidate strengths, skill gaps, and role suitability.
+  - **Core Skill Matrix**: Evaluates each required competency (Strong / Moderate / Weak) along with resume context evidence.
+  - **Actionable Suggestions**: Provides interview focus points and growth roadmaps for both interviewers and candidates.
+- 💡 **AI-Generated Tiered Interview Questions**:
+  - Automatically synthesizes interview questions across three dimensions: **Foundational**, **Advanced**, and **Behavioral**, specifically targeting the identified skill gaps.
+  - Each question includes an interviewer rationale (**Why Asked**), giving hiring managers clear insight into candidate depth.
+- ⚡ **Full-Duplex SSE Streaming Typewriter UX**:
+  - Progressive typewriter output powered by Server-Sent Events (FastAPI `StreamingResponse`).
+  - Integrated dark terminal console rendering model token streams in real-time to eliminate waiting friction.
+- 🔌 **Pluggable Multi-Provider Architecture**:
+  - Unified `LLMProvider` abstraction allowing seamless provider toggling between `deepseek` and `qwen` via `.env`.
+  - Built-in Markdown code-block cleaner and safe string template interpolation (`safe_format_prompt`) to prevent JSON formatting faults.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer                 | Technology                         | Description                                                                   |
+| :-------------------- | :--------------------------------- | :---------------------------------------------------------------------------- |
+| **Runtime**           | Python 3.12+                       | Modern async/await coroutines and expressive type annotations                 |
+| **Package Manager**   | Astral `uv`                        | Ultra-fast, Rust-powered Python dependency manager                            |
+| **Backend Framework** | FastAPI + Uvicorn                  | High-performance asynchronous ASGI Web framework                              |
+| **Data Modeling**     | Pydantic v2                        | Robust runtime schema validation and serialization                            |
+| **PDF Extraction**    | pypdf (v6.x)                       | Pure-Python lightweight PDF text extraction library                           |
+| **HTTP Client**       | httpx                              | Async non-blocking HTTP client supporting SSE streaming                       |
+| **Frontend Core**     | Native HTML5 + Fetch + EventStream | Zero-bundle, lightweight, browser-native stream chunk parsing                 |
+| **Styling & Design**  | Tailwind CSS (CDN) + Inter Font    | Modern dark/light gradients, responsive dual-column layout, interactive cards |
+
+---
+
+## 🏛️ Architecture & Workflow
+
+The system is designed with a decoupled micro-kernel architecture, separating frontend event handling, core pipeline orchestration, and LLM provider implementations:
+
+```mermaid
+flowchart TB
+    subgraph Client["Presentation Layer (Client / Browser)"]
+        UI["SPA Interface<br/>(HTML5 + Tailwind CSS)"]
+        StreamReader["Fetch Stream Reader<br/>(ReadableStream / SSE Decoder)"]
+        StateMgr["State Machine<br/>(Stage Transitions / Progress)"]
+        UI --> StreamReader
+        StreamReader --> StateMgr
+    end
+
+    subgraph API["Gateway & API Layer (FastAPI)"]
+        MainApp["Application Entrypoint<br/>(app/main.py)"]
+        StaticRoute["Static File Server<br/>(/static)"]
+        StreamEndpoint["Streaming Endpoint<br/>POST /analyze/resume"]
+        MainApp --> StaticRoute
+        MainApp --> StreamEndpoint
+    end
+
+    subgraph Services["Core Services & Orchestration"]
+        ResumeParser["PDF Parser Service<br/>(services/resume_parser.py)"]
+        Analyzer["Pipeline Orchestrator<br/>(services/analyzer.py)"]
+        PromptEngine["Domain Prompt Templates<br/>(prompts/*.py)"]
+        DataCleaner["Safe Interpolation & JSON Cleaner<br/>(safe_format_prompt / clean_json_text)"]
+        
+        StreamEndpoint --> ResumeParser
+        StreamEndpoint --> Analyzer
+        Analyzer --> PromptEngine
+        Analyzer --> DataCleaner
+    end
+
+    subgraph LLM_Adapter["Provider Abstraction Layer"]
+        Factory["Provider Factory<br/>(get_provider)"]
+        BaseProvider["LLMProvider ABC<br/>(chat / stream_chat)"]
+        DeepSeek["DeepSeekProvider<br/>(deepseek-chat)"]
+        Qwen["QwenProvider<br/>(qwen-turbo)"]
+        
+        Analyzer --> Factory
+        Factory --> BaseProvider
+        BaseProvider --> DeepSeek
+        BaseProvider --> Qwen
+    end
+
+    StateMgr -.->|1. Upload PDF & JD| StreamEndpoint
+    StreamEndpoint -.->|2. Progressive SSE Stream| StreamReader
+```
+
+### Three-Stage Pipeline
+
+1. **Stage 1 - Skill Profiling (`skills`)**: Extracts core competencies, proficiency level, and verifiable resume evidence.
+2. **Stage 2 - Job-Fit Diagnostics (`job_match`)**: Evaluates competencies against the JD, calculates a 0–100 match score, and suggests key interview inquiries.
+3. **Stage 3 - Tiered Interview Questions (`interview_questions`)**: Generates targeted questions categorized as Foundational, Advanced, or Behavioral based on candidate-JD gaps.
+
+---
+
+## 📁 Project Structure
+
+```text
+resume-analyzer/
+├── app/
+│   ├── __init__.py
+│   ├── config.py                  # Configuration loader (loads environment from .env)
+│   ├── main.py                    # FastAPI entrypoint, static assets & SSE routes
+│   ├── models.py                  # Pydantic schemas (SkillAnalysis, JobMatchResult)
+│   ├── prompts/                   # Domain-engineered prompt templates
+│   │   ├── __init__.py
+│   │   ├── skill_extraction.py    # Skill profiling prompt
+│   │   ├── job_match.py           # Job-fit scoring & diagnostics prompt
+│   │   └── interview_questions.py # Tiered interview questions prompt
+│   ├── providers/                 # LLM provider adapter layer (pluggable)
+│   │   ├── __init__.py            # Provider factory (get_provider)
+│   │   ├── base.py                # LLMProvider abstract base class
+│   │   ├── deepseek.py            # DeepSeek API client implementation
+│   │   └── qwen.py                # Alibaba Qwen API client implementation
+│   └── services/                  # Business logic services
+│       ├── __init__.py
+│       ├── analyzer.py            # Pipeline coordinator, safe templating & JSON parsing
+│       └── resume_parser.py       # PDF file validation & text extraction service
+├── docs/
+│   └── architecture.md            # In-depth system architecture document (ADR)
+├── static/
+│   └── index.html                 # Frontend SPA (dashboard, file uploader, live console)
+├── .env                           # Local environment config (git-ignored)
+├── .env.example                   # Environment configuration template
+├── pyproject.toml                 # uv project configuration & dependencies
+├── uv.lock                        # Locked dependency versions
+└── README.md                      # Bilingual documentation (English & Chinese)
+```
+
+---
+
+## 🚀 Quick Start
+
+### 1. Prerequisites
+
+Ensure you have **Python 3.12+** installed on your system. We recommend using **[uv](https://github.com/astral-sh/uv)**, the next-generation Python package manager.
+
+Install `uv` (if not already installed):
+
+```bash
+# macOS / Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows (PowerShell)
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+### 2. Clone Repository & Install Dependencies
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/DorseyLiu/resume-analyzer.git
+cd resume-analyzer
+
+# 2. Synchronize dependencies with uv
+uv sync
+```
+
+*(If you prefer traditional pip: `pip install fastapi uvicorn pypdf httpx python-dotenv pydantic python-multipart`)*
+
+### 3. Configure Environment Variables
+
+Copy `.env.example` to create your local `.env`:
+
+```bash
+# Linux / macOS
+cp .env.example .env
+
+# Windows (PowerShell)
+copy .env.example .env
+```
+
+Open `.env` and fill in your model API key and desired provider:
+
+```env
+# Selected LLM Provider: deepseek or qwen
+LLM_PROVIDER=deepseek
+
+# DeepSeek API Key (Get yours at https://platform.deepseek.com)
+DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Alibaba Qwen API Key (Get yours at https://dashscope.console.aliyun.com)
+QWEN_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+### 4. Run Development Server
+
+Launch Uvicorn with hot-reload enabled via `uv`:
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+### 5. Access the Application
+
+- **Interactive Web Interface**: Open your browser at [http://127.0.0.1:8000](http://127.0.0.1:8000)
+- **Interactive API Documentation (Swagger UI)**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- **Alternative API Documentation (ReDoc)**: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+
+---
+
+## 🖥️ Usage Guide & WebUI Demo
+
+1. **Upload Resume**: Drag and drop candidate `.pdf` files onto the upload dropzone, or click to browse files.
+2. **Provide Job Description (JD)**: Paste job requirements into the JD text area, or click **"Fill Sample JD"** for a quick demonstration.
+3. **Trigger Deep Analysis**: Click **"Start Deep Analysis"** to establish the SSE streaming connection.
+4. **Real-Time Streaming Output**: Track the active stage and view real-time token streams in the dark terminal console.
+5. **Explore Diagnostic Reports**: Review match scores, skill match matrices, interview questions, and raw JSON payloads.
+
+---
+
+## 📡 API Reference
+
+### `POST /analyze/resume`
+
+- **Content-Type**: `multipart/form-data`
+- **Response Format**: `text/event-stream; charset=utf-8`
+
+#### Form Parameters
+
+| Field             | Type                  | Required | Description                 |
+| :---------------- | :-------------------- | :------- | :-------------------------- |
+| `resume`          | `UploadFile` (binary) | Yes      | Candidate's PDF resume file |
+| `job_description` | `string`              | Yes      | Target job description text |
+
+#### SSE Event Sequence
+- **`start`**: Triggered when a stage starts (`{"stage": "skills", "status": "start"}`).
+- **`chunk`**: Token chunks streamed during model generation (`{"stage": "skills", "chunk": "..."}`).
+- **`done`**: Emitted when stage structured JSON data is parsed and loaded.
+- **`completed`**: Emitted when all three stages have finished.
+
+---
+
+## ❓ FAQ & Troubleshooting
+
+### Q1: "Cannot extract text from the uploaded resume" error?
+> **Cause**: The application uses `pypdf` to extract text. If the PDF consists of scanned images or encrypted font glyphs, the text stream is empty.  
+> **Solution**: Ensure the uploaded PDF allows text selection and copying.
+
+### Q2: 401 Unauthorized or "API key not found" error?
+> **Cause**: The API key for the selected provider is missing or invalid in your `.env` file.  
+> **Solution**: Verify that `LLM_PROVIDER` matches your configured `DEEPSEEK_API_KEY` or `QWEN_API_KEY` in `.env`.
+
+---
+
+<br/>
+<br/>
+
+<div id="chinese-version"></div>
+
+---
+
+# 🇨🇳 ResumeAI - 智能简历分析与人岗匹配诊断系统
+
+<div align="center">
+
+<p align="center">
+  <a href="#resumeai---llm-powered-resume-analysis--job-fit-diagnostic-system"><b>🇬🇧 English</b></a>
+   | <a href="#chinese-version"><b>🇨🇳 简体中文</b></a>
+</p>
+
+<p align="center">
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python Version" /></a>
+  <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-0.115%2B-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI" /></a>
+  <a href="https://docs.pydantic.dev/"><img src="https://img.shields.io/badge/Pydantic-v2-E92063?style=flat-square&logo=pydantic&logoColor=white" alt="Pydantic" /></a>
+  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/TailwindCSS-3.x-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" alt="TailwindCSS" /></a>
+  <a href="https://github.com/astral-sh/uv"><img src="https://img.shields.io/badge/uv-Package%20Manager-DE5FE9?style=flat-square&logo=astral&logoColor=white" alt="uv" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License" /></a>
+</p>
+
+<p align="center">
+  <b>基于大语言模型（LLM）的全栈智能招聘评估工具，支持原生 PDF 简历解析、技能图谱提取、人岗契合度诊断与定制化面试题生成。</b>
+</p>
+
+<p align="center">
+  <a href="#-项目简介">项目简介</a> •
+  <a href="#-核心特性">核心特性</a> •
+  <a href="#-技术栈">技术栈</a> •
+  <a href="#-系统架构与工作流程">系统架构</a> •
+  <a href="#-目录结构">目录结构</a> •
+  <a href="#-快速启动指南">快速启动</a> •
+  <a href="#-功能操作与使用演示">使用演示</a> •
+  <a href="#-api-接口参考">API 文档</a> •
+  <a href="#-常见问题--排错指南">常见问题</a>
+</p>
 
 </div>
 
@@ -19,7 +339,7 @@
 
 ## 📖 项目简介
 
-**ResumeAI** 是一款专为技术招聘、HR 专家、猎头及工程管理者打造的 AI 智能简历评估与人岗匹配系统。
+**ResumeAI** 是一款专为技术招聘、HR 专家、猎头及工程管理者打造的 AI 智能简历评估与人岗匹配诊断系统。
 
 在传统招聘流程中，人工筛选简历耗时长、评估标准易受主观偏好影响，且难以针对具体岗位的技能差（Skill Gap）精准定制面试考题。ResumeAI 通过解析求职者 PDF 简历与目标岗位 JD（Job Description），结合深度结构化提示词与主流大语言模型（支持 DeepSeek / 阿里通义千问 Qwen 等），提供**全流程实时流式（Server-Sent Events, SSE）**的人岗匹配度分析报告与定制化面试提问方案。
 
@@ -49,7 +369,6 @@
   - 抽象统一 `LLMProvider` 基类，支持通过环境变量自由切换 `deepseek` / `qwen`。
   - 内置完善的 JSON 代码块清洗与安全占位符替换机制（`safe_format_prompt`），杜绝格式解析报错。
 
-
 ---
 
 ## 🛠️ 技术栈
@@ -64,6 +383,62 @@
 | **HTTP 客户端** | httpx                            | 异步流式 HTTP 客户端，支持 SSE 流读取与大模型通信          |
 | **前端交互**    | 原生 HTML5 + Fetch + EventStream | 零打包配置、轻量快速、原生流式分块读取                     |
 | **UI 样式设计** | Tailwind CSS (CDN) + Inter 字体  | 现代化科技感暗浅渐变、双列排版、卡片悬浮与自适应响应式布局 |
+
+---
+
+## 🏛️ 系统架构与工作流程
+
+```mermaid
+flowchart TB
+    subgraph Client["前端表现层 (Client / Browser)"]
+        UI["SPA 交互界面<br/>(HTML5 + Tailwind CSS)"]
+        StreamReader["Fetch 流式读取器<br/>(ReadableStream / SSE 解码)"]
+        StateMgr["前端状态机<br/>(阶段流转 / 进度跟踪)"]
+        UI --> StreamReader
+        StreamReader --> StateMgr
+    end
+
+    subgraph API["网关接入层 (FastAPI Web Layer)"]
+        MainApp["FastAPI 核心入口<br/>(app/main.py)"]
+        StaticRoute["静态资源服务<br/>(/static)"]
+        StreamEndpoint["流式分析接口<br/>POST /analyze/resume"]
+        MainApp --> StaticRoute
+        MainApp --> StreamEndpoint
+    end
+
+    subgraph Services["业务编排与解析层 (Core Services)"]
+        ResumeParser["PDF 解析服务<br/>(services/resume_parser.py)"]
+        Analyzer["分析流水线编排引擎<br/>(services/analyzer.py)"]
+        PromptEngine["领域提示词模板<br/>(prompts/*.py)"]
+        DataCleaner["Prompt 安全插值 & JSON 清洗器<br/>(safe_format_prompt / clean_json_text)"]
+        
+        StreamEndpoint --> ResumeParser
+        StreamEndpoint --> Analyzer
+        Analyzer --> PromptEngine
+        Analyzer --> DataCleaner
+    end
+
+    subgraph LLM_Adapter["模型提供商适配层 (Provider Layer)"]
+        Factory["Provider 工厂<br/>(get_provider)"]
+        BaseProvider["LLMProvider 抽象基类<br/>(chat / stream_chat)"]
+        DeepSeek["DeepSeekProvider<br/>(deepseek-chat)"]
+        Qwen["QwenProvider<br/>(qwen-turbo)"]
+        
+        Analyzer --> Factory
+        Factory --> BaseProvider
+        BaseProvider --> DeepSeek
+        BaseProvider --> Qwen
+    end
+
+    StateMgr -.->|1. 上传 PDF 与 JD| StreamEndpoint
+    StreamEndpoint -.->|2. 阶段性 SSE 推送| StreamReader
+```
+
+### 三阶段分析流水线
+
+1. **Stage 1 - 候选人技能图谱提取 (`skills`)**：抽取简历核心技能、精通级别及事实证据。
+2. **Stage 2 - 人岗契合度多维诊断 (`job_match`)**：对照岗位 JD 进行技能逐项打分、量化综合匹配度（0-100）并产出提升建议。
+3. **Stage 3 - 定制化分级面试考题生成 (`interview_questions`)**：针对技能短板（Skill Gap）与关键项目生成基础、进阶与行为面试题。
 
 ---
 
@@ -90,13 +465,15 @@ resume-analyzer/
 │       ├── __init__.py
 │       ├── analyzer.py            # 分析流程编排、Prompt 安全格式化、JSON 提取清洗
 │       └── resume_parser.py       # PDF 文件验证与文本提取服务
+├── docs/
+│   └── architecture.md            # 深度系统架构设计文档 (ADR)
 ├── static/
 │   └── index.html                 # 前端单页应用（仪表盘、拖拽上传、流式控制台）
 ├── .env                           # 运行期本地环境变量配置（已加入 .gitignore）
 ├── .env.example                   # 环境变量配置示例模板
 ├── pyproject.toml                 # uv 项目配置与依赖清单
 ├── uv.lock                        # 锁定的依赖版本信息
-└── README.md                      # 项目完整说明文档
+└── README.md                      # 中英双语完整说明文档
 ```
 
 ---
@@ -121,6 +498,7 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 
 ```bash
 # 1. 克隆代码仓库并进入项目根目录
+git clone https://github.com/DorseyLiu/resume-analyzer.git
 cd resume-analyzer
 
 # 2. 使用 uv 一键同步并安装全部依赖
@@ -174,38 +552,25 @@ INFO:     Application startup complete.
 ### 5. 访问与使用
 
 - **前端交互界面**：打开浏览器访问 [http://127.0.0.1:8000](http://127.0.0.1:8000)
-- **API 交互式文档 (Swagger)**：访问 [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- **API 交互式文档 (Swagger UI)**：访问 [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 - **备用 API 文档 (ReDoc)**：访问 [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
 ---
 
 ## 🖥️ 功能操作与使用演示
 
-1. **上传简历**：
-   - 将求职者的 `.pdf` 格式简历拖拽至左侧上传区域，或点击上传框从本地选择文件。
-2. **填写岗位需求（JD）**：
-   - 在“目标职位描述 (JD)”文本框中粘贴招聘要求与岗位说明。
-   - 也可以直接点击文本框右上角的**“填入测试JD”**按钮，自动载入预设的高级前端开发工程师岗位范本。
-3. **启动深度分析**：
-   - 点击**“开始深度分析”**按钮，前端将发起流式长连接请求。
-4. **实时流式反馈**：
-   - 界面上方的步骤指示器实时更新当前运行阶段（`1. 提取技能` ➔ `2. 岗位匹配` ➔ `3. 定制考题`）。
-   - 右侧“实时分析日志”深色终端以打字机模式实时呈现大语言模型推理输出的每一个 Token。
-5. **多维诊断报告交互**：
-   - **综合匹配指数**：位于右侧诊断卡片顶部右侧，显示量化分数与“良好匹配/一般匹配”徽章。
-   - **匹配评价摘要**：提炼求职者的核心竞争力与短板。
-   - **核心技能匹配矩阵**：采用双列卡片自适应排版，展示各项技能的强弱度及履历证据。
-   - **候选人技能图谱**：横向铺展展示技能分类、精通级别及完整的技能技术标签。
-   - **AI 定制面试题**：按照“基础 / 进阶 / 行为”维度列出定制考题，并附带面试官考核意图。
-   - **原始数据抽屉**：开发者可点击底部的“查看完整返回数据”折叠面板查验结构化 JSON 数据。
+1. **上传简历**：将求职者的 `.pdf` 格式简历拖拽至左侧上传区域，或点击上传框从本地选择文件。
+2. **填写岗位需求（JD）**：在“目标职位描述 (JD)”文本框中粘贴招聘要求，亦可点击右上角“填入测试JD”按钮快速载入范本。
+3. **启动深度分析**：点击“开始深度分析”按钮，前端将发起流式长连接请求。
+4. **实时流式反馈**：阶段指示器实时追踪当前分析步骤，右侧深色控制台以打字机模式实时滚动展示大模型 Token。
+5. **多维诊断报告交互**：查看量化匹配分数、核心优劣势评价、各项技能强弱矩阵、候选人技术标签云及分级面试考题。
 
 ---
 
 ## 📡 API 接口参考
 
-### 1. 简历与岗位深度分析（SSE 流式传输）
+### `POST /analyze/resume`
 
-- **请求路径**：`POST /analyze/resume`
 - **请求格式**：`multipart/form-data`
 - **响应格式**：`text/event-stream; charset=utf-8`
 
@@ -217,52 +582,14 @@ INFO:     Application startup complete.
 | `job_description` | `string`              | 是   | 招聘岗位的描述文本与要求  |
 
 #### SSE 事件流协议定义
-
-后端按分析阶段依次推送以下数据格式：
-
-##### ① 阶段开始事件 (`start`)
-```json
-{
-  "stage": "skills",
-  "status": "start"
-}
-```
-
-##### ② 内容分块推送 (`chunk`)
-```json
-{
-  "stage": "skills",
-  "chunk": "{\"skill\": \"前端开发\"..."
-}
-```
-
-##### ③ 阶段完成与数据装载 (`done`)
-```json
-{
-  "stage": "skills",
-  "status": "done",
-  "data": {
-    "skill": "Vue 3、TypeScript、Node.js、微前端",
-    "skills": ["Vue 3", "TypeScript", "Node.js", "微前端"],
-    "match_level": "senior",
-    "evidence": ["10年大型企业级 SaaS 与高可用前端架构经验"]
-  }
-}
-```
-
-##### ④ 全部分析完成事件 (`completed`)
-```json
-{
-  "stage": "all",
-  "status": "completed"
-}
-```
+- **`start`**：阶段启动事件（`{"stage": "skills", "status": "start"}`）。
+- **`chunk`**：Token 分块实时流（`{"stage": "skills", "chunk": "..."}`）。
+- **`done`**：阶段完成并装载结构化 JSON 数据。
+- **`completed`**：全部分析完成事件。
 
 ---
 
 ## 🧬 数据模型定义 (Pydantic v2)
-
-项目在 `app/models.py` 中严格定义了数据契约：
 
 ### 1. `SkillAnalysis`
 ```python
@@ -281,75 +608,43 @@ class JobMatchResult(BaseModel):
     suggestions: list[str]             # 面试官重点考察建议与提升方向
 ```
 
-### 3. 面试问题结构
-```json
-[
-  {
-    "category": "进阶",
-    "question": "在微前端架构下，您是如何处理主应用与子应用间的全局状态同步与 CSS 样式隔离的？",
-    "why_asked": "候选人简历提到微前端落地经验，针对目标岗位的工程化要求进行深度原理考察。"
-  }
-]
-```
-
 ---
 
 ## 💡 核心设计与工程实践
 
-1. **提示词安全格式化 (`safe_format_prompt`)**：
-   - 避免直接使用 Python 原生 `str.format()` 引起复杂的 JSON 格式大括号转义异常（`KeyError`）。
-   - 采用安全的子串精准替换算法，确保大语言模型能 100% 稳定输出标准 JSON。
-2. **健壮的 Markdown JSON 提取机制 (`clean_json_text`)**：
-   - 模型在流式或非流式输出时经常夹带 ````json ... ```` 代码块标签或思考过程。
-   - 系统内置正则提取器与最外层括号定位逻辑，自动修剪无关文本，保障 `json.loads()` 的高解析成功率。
-3. **复合专有名词保留算法**：
-   - 针对中文招聘场景常见的复合技术栈专有名词（如 `Vue 3`、`Element Plus`、`Spring Boot` 等），前端标签化时严格限定分隔符（`[、,，;；\n]+`），杜绝因空格切分造成的碎片化误显示。
-4. **流式数据粘包与换行截断处理**：
-   - 适配 Windows 与各主流浏览器的长连接机制，前端流式读取器兼容 `\r\n\r\n` 与 `\n\n` 多种边界分隔，防止数据粘包漏包。
+1. **提示词安全格式化 (`safe_format_prompt`)**：避免原生 `str.format()` 引发 JSON 大括号转义异常，采用安全的精准子串替换。
+2. **健壮的 Markdown JSON 提取机制 (`clean_json_text`)**：自动定位最外层括号并剔除 ````json ... ```` 标记与思维链文本，保证 100% 解析成功率。
+3. **复合专有名词保留算法**：严格限定正则分隔符（`[、,，;；\n]+`），保护 `Vue 3`、`Element Plus` 等复合名词不被空格拆散。
+4. **流式数据粘包与换行截断处理**：前端读取器双向兼容 `\r\n\r\n` 与 `\n\n` 边界，确保在各类系统与代理环境下均不丢包。
 
 ---
 
 ## 🧩 扩展新的大模型提供商
 
-系统采用标准化的工厂模式，如需接入 OpenAI、Claude、DeepSeek 私有化部署或 Ollama 本地模型，只需两步：
-
-1. 在 `app/providers/` 目录下新建模型实现文件（如 `ollama.py`），继承 `LLMProvider` 基类：
+1. 在 `app/providers/` 目录下新建实现类（继承 `LLMProvider`）：
    ```python
    from .base import LLMProvider
    from typing import AsyncGenerator
 
    class OllamaProvider(LLMProvider):
        async def chat(self, messages: list[dict]) -> str:
-           # 实现普通对话
            ...
-
        async def stream_chat(self, messages: list[dict]) -> AsyncGenerator[str, None]:
-           # 实现流式输出迭代器
            ...
    ```
-2. 在 `app/providers/__init__.py` 的 `get_provider()` 工厂函数中注册即可：
-   ```python
-   elif provider_type == "ollama":
-       return OllamaProvider(...)
-   ```
+2. 在 `app/providers/__init__.py` 的 `get_provider()` 工厂函数中注册即可。
 
 ---
 
 ## ❓ 常见问题 / 排错指南
 
 ### Q1: 上传 PDF 简历后提示“无法从简历中提取到文本内容”？
-> **原因**：目前系统使用 `pypdf` 进行纯文本图层提取。如果上传的 PDF 是纯图片扫描件、拍照件或使用了特殊加密字体，文本图层为空。  
-> **解决建议**：请确保上传的 PDF 简历支持文字选中文制（非纯图片扫描版）。后续版本将引入 OCR 模块。
+> **原因**：系统使用 `pypdf` 进行纯文本图层提取。如果上传的 PDF 是纯图片扫描件，文本图层为空。  
+> **解决建议**：请确保上传的 PDF 简历支持文字选中文制（非纯图片扫描版）。
 
 ### Q2: 控制台报错 `401 Unauthorized` 或 `API key not found`？
 > **原因**：未在 `.env` 中正确配置对应大模型提供商的 API 密钥。  
 > **解决建议**：检查根目录下的 `.env` 文件，确认 `LLM_PROVIDER` 与对应的 `DEEPSEEK_API_KEY` 或 `QWEN_API_KEY` 已经填写有效密钥。
-
-### Q3: 端口 8000 被占用如何处理？
-> **解决建议**：使用 `--port` 参数指定新端口启动，例如：
-> ```bash
-> uv run uvicorn app.main:app --reload --port 8080
-> ```
 
 ---
 
